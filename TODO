@@ -1,0 +1,7 @@
+- Use libraries from multiple movies
+  - This will allow greater vicinity exclusions.
+  - Maybe use libraries of mogrified frames?
+
+- Start target tracking immediately.
+  - Detect when frame has changed.
+  - Use score?
