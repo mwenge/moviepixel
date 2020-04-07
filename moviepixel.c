@@ -2578,8 +2578,8 @@ main (int argc, char *argv[])
   if (mode == MODE_METAPIXEL)
   {
       if (collage)
-    generate_collage(argv[optind], argv[optind + 1], scale, collage_min_distance,
-         metric, cheat);
+          generate_collage(argv[optind], argv[optind + 1], scale, collage_min_distance,
+             metric, cheat);
       else {
           if (!moviemode)
             make_classic_mosaic(argv[optind], argv[optind + 1],
