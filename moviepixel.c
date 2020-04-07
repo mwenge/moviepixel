@@ -1,7 +1,7 @@
 /*
- * metapixel.c
+ * moviepixel.c
  *
- * metapixel
+ * moviepixel
  *
  * Copyright (C) 1997-2006 Mark Probst
  *
@@ -38,7 +38,7 @@
 #include "writeimage.h"
 #include "lispreader.h"
 
-#include "metapixel.h"
+#include "moviepixel.h"
 
 #ifndef MIN
 #define MIN(a,b)           ((a)<(b)?(a):(b))
@@ -49,8 +49,8 @@
 
 static int index_order[IMAGE_SIZE * IMAGE_SIZE];
 
-static metapixel_t *first_pixel = 0;
-static int num_metapixels = 0;
+static moviepixel_t *first_pixel = 0;
+static int num_moviepixels = 0;
 
 static float sqrt_of_two, sqrt_of_image_size;
 
@@ -106,14 +106,14 @@ strip_path (char *name)
     return p + 1;
 }
 
-static metapixel_t*
-new_metapixel (void)
+static moviepixel_t*
+new_moviepixel (void)
 {
-    metapixel_t *pixel = (metapixel_t*)malloc(sizeof(metapixel_t));
+    moviepixel_t *pixel = (moviepixel_t*)malloc(sizeof(moviepixel_t));
 
     assert(pixel != 0);
 
-    memset(pixel, 0, sizeof(metapixel_t));
+    memset(pixel, 0, sizeof(moviepixel_t));
 
     return pixel;
 }
@@ -519,7 +519,7 @@ compute_index_weights (void)
 }
 
 static float
-wavelet_compare (coeffs_t *coeffs, metapixel_t *pixel, float best_score)
+wavelet_compare (coeffs_t *coeffs, moviepixel_t *pixel, float best_score)
 {
     search_coefficients_t *query = &coeffs->wavelet.coeffs;
     float *query_means = coeffs->wavelet.means;
@@ -557,7 +557,7 @@ wavelet_compare (coeffs_t *coeffs, metapixel_t *pixel, float best_score)
 }
 
 static float
-subpixel_compare (coeffs_t *coeffs, metapixel_t *pixel, float best_score)
+subpixel_compare (coeffs_t *coeffs, moviepixel_t *pixel, float best_score)
 {
     int channel;
     float score = 0.0;
@@ -582,11 +582,11 @@ subpixel_compare (coeffs_t *coeffs, metapixel_t *pixel, float best_score)
 }
 
 float
-compare_metapixel(int previousfile, int currentfile)
+compare_moviepixel(int previousfile, int currentfile)
 {
-    metapixel_t *previous=NULL;
-    metapixel_t *current=NULL;
-    metapixel_t *pixel;
+    moviepixel_t *previous=NULL;
+    moviepixel_t *current=NULL;
+    moviepixel_t *pixel;
     
     for (pixel = first_pixel; pixel != 0; pixel = pixel->next)
     {
@@ -607,17 +607,17 @@ compare_metapixel(int previousfile, int currentfile)
 int
 scene_has_cut (int previousfile, int currentfile)
 {
-  if (compare_metapixel(previousfile,currentfile) > 10000)
+  if (compare_moviepixel(previousfile,currentfile) > 10000)
     return 1;
   return 0;
 }
 
 void
-add_metapixel (metapixel_t *pixel)
+add_moviepixel (moviepixel_t *pixel)
 {
     pixel->next = first_pixel;
     first_pixel = pixel;
-    ++num_metapixels;
+    ++num_moviepixels;
 }
 
 static int
@@ -724,7 +724,7 @@ generate_search_coeffs_for_subimage (coeffs_t *coeffs, unsigned char *image_data
 }
 
 static void
-generate_metapixel_coefficients (metapixel_t *pixel, unsigned char *image_data,
+generate_moviepixel_coefficients (moviepixel_t *pixel, unsigned char *image_data,
          coefficient_with_index_t raw_coeffs[NUM_COEFFS])
 {
     static float float_image[NUM_CHANNELS * IMAGE_SIZE * IMAGE_SIZE];
@@ -785,7 +785,7 @@ generate_metapixel_coefficients (metapixel_t *pixel, unsigned char *image_data,
 }
 
 static int
-metapixel_in_array (metapixel_t *pixel, metapixel_t **array, int size)
+moviepixel_in_array (moviepixel_t *pixel, moviepixel_t **array, int size)
 {
     int i;
 
@@ -814,13 +814,13 @@ manhattan_distance (int x1, int y1, int x2, int y2)
 }
 
 static match_t
-metapixel_nearest_to (coeffs_t *coeffs, int metric, int x, int y,
-          metapixel_t **forbidden, int num_forbidden,
-          int (*validity_func) (void*, metapixel_t*, int, int),
+moviepixel_nearest_to (coeffs_t *coeffs, int metric, int x, int y,
+          moviepixel_t **forbidden, int num_forbidden,
+          int (*validity_func) (void*, moviepixel_t*, int, int),
           void *validity_func_data)
 {
     float best_score = FLT_MAX;
-    metapixel_t *best_fit = 0, *pixel;
+    moviepixel_t *best_fit = 0, *pixel;
     compare_func_t compare_func = compare_func_for_metric(metric);
     match_t match;
 
@@ -834,7 +834,7 @@ metapixel_nearest_to (coeffs_t *coeffs, int metric, int x, int y,
 
   score = compare_func(coeffs, pixel, best_score);
 
-  if (score < best_score && !metapixel_in_array(pixel, forbidden, num_forbidden)
+  if (score < best_score && !moviepixel_in_array(pixel, forbidden, num_forbidden)
       && (validity_func == 0 || validity_func(validity_func_data, pixel, x, y)))
   {
       best_score = score;
@@ -849,13 +849,13 @@ metapixel_nearest_to (coeffs_t *coeffs, int metric, int x, int y,
 }
 
 static void
-get_n_metapixel_nearest_to (int n, global_match_t *matches, coeffs_t *coeffs, int metric)
+get_n_moviepixel_nearest_to (int n, global_match_t *matches, coeffs_t *coeffs, int metric)
 {
     compare_func_t compare_func = compare_func_for_metric(metric);
     int i;
-    metapixel_t *pixel;
+    moviepixel_t *pixel;
 
-    assert(num_metapixels >= n);
+    assert(num_moviepixels >= n);
 
     i = 0;
     for (pixel = first_pixel; pixel != 0; pixel = pixel->next)
@@ -886,7 +886,7 @@ get_n_metapixel_nearest_to (int n, global_match_t *matches, coeffs_t *coeffs, in
 }
 
 static void
-paste_metapixel (metapixel_t *pixel, unsigned char *data, int width, int height, int x, int y)
+paste_moviepixel (moviepixel_t *pixel, unsigned char *data, int width, int height, int x, int y)
 {
     int i;
     int pixel_width, pixel_height;
@@ -904,7 +904,7 @@ paste_metapixel (metapixel_t *pixel, unsigned char *data, int width, int height,
 
   if (pixel_data == 0)
   {
-      fprintf(stderr, "Error: cannot read metapixel file `%s'\n", pixel->filename);
+      fprintf(stderr, "Error: cannot read moviepixel file `%s'\n", pixel->filename);
       exit(1);
   }
     }
@@ -1033,12 +1033,12 @@ generate_local_classic (classic_reader_t *reader, int min_distance, int metric)
     mosaic_t *mosaic = init_mosaic_from_reader(reader);
     int metawidth = reader->metawidth, metaheight = reader->metaheight;
     int x, y;
-    metapixel_t **neighborhood = 0;
+    moviepixel_t **neighborhood = 0;
     int neighborhood_diameter = min_distance * 2 + 1;
     int neighborhood_size = (neighborhood_diameter * neighborhood_diameter - 1) / 2;
 
     if (min_distance > 0)
-  neighborhood = (metapixel_t**)malloc(sizeof(metapixel_t*) * neighborhood_size);
+  neighborhood = (moviepixel_t**)malloc(sizeof(moviepixel_t*) * neighborhood_size);
 
     for (y = 0; y < metaheight; ++y)
     {
@@ -1063,7 +1063,7 @@ generate_local_classic (classic_reader_t *reader, int min_distance, int metric)
 
       generate_search_coeffs_for_classic_subimage(reader, x, &coeffs, metric);
 
-      match = metapixel_nearest_to(&coeffs, metric, x, y, neighborhood, neighborhood_size, 0, 0);
+      match = moviepixel_nearest_to(&coeffs, metric, x, y, neighborhood, neighborhood_size, 0, 0);
 
       if (match.pixel == 0)
       {
@@ -1110,13 +1110,13 @@ generate_global_classic (classic_reader_t *reader, int metric)
     int num_matches = (metawidth * metaheight) * (metawidth * metaheight);
     int i, ignore_forbidden;
     int num_locations_filled;
-    metapixel_t *pixel;
+    moviepixel_t *pixel;
 
-    if (num_metapixels < metawidth * metaheight)
+    if (num_moviepixels < metawidth * metaheight)
     {
       fprintf(stderr,
         "global search method needs at least as much\n"
-        "metapixels as there are locations\n");
+        "moviepixels as there are locations\n");
       exit(1);
     }
 
@@ -1133,7 +1133,7 @@ generate_global_classic (classic_reader_t *reader, int metric)
           coeffs_t coeffs;
 
           generate_search_coeffs_for_classic_subimage(reader, x, &coeffs, metric);
-          get_n_metapixel_nearest_to(metawidth * metaheight, m, &coeffs, metric);
+          get_n_moviepixel_nearest_to(metawidth * metaheight, m, &coeffs, metric);
           for (i = 0; i < metawidth * metaheight; ++i)
           {
             int j;
@@ -1278,7 +1278,7 @@ paste_classic (mosaic_t *mosaic, char *input_name, char *output_name, int cheat)
       if (benchmark_rendering)
     assert(mosaic->matches[y * metawidth + x].pixel->data != 0);
 
-      paste_metapixel(mosaic->matches[y * metawidth + x].pixel, out_image_data, out_image_width,
+      paste_moviepixel(mosaic->matches[y * metawidth + x].pixel, out_image_data, out_image_width,
           small_height, x * small_width, 0);
       if (!benchmark_rendering)
       {
@@ -1330,7 +1330,7 @@ paste_classic (mosaic_t *mosaic, char *input_name, char *output_name, int cheat)
 }
 
 static void
-pixel_add_collage_position (metapixel_t *pixel, int x, int y)
+pixel_add_collage_position (moviepixel_t *pixel, int x, int y)
 {
     position_t *position = (position_t*)malloc(sizeof(position_t));
 
@@ -1344,7 +1344,7 @@ pixel_add_collage_position (metapixel_t *pixel, int x, int y)
 }
 
 static int
-pixel_valid_for_collage_position (void *data, metapixel_t *pixel, int x, int y)
+pixel_valid_for_collage_position (void *data, moviepixel_t *pixel, int x, int y)
 {
     int min_distance = (int)(unsigned long)data;
     position_t *position;
@@ -1436,7 +1436,7 @@ generate_collage (char *input_name, char *output_name, float scale, int min_dist
   generate_search_coeffs_for_subimage(&coeffs, in_image_data, in_image_width, in_image_height,
               x, y, small_width, small_height, metric);
 
-  match = metapixel_nearest_to(&coeffs, metric, x, y, 0, 0,
+  match = moviepixel_nearest_to(&coeffs, metric, x, y, 0, 0,
              pixel_valid_for_collage_position, (void*)(unsigned long)min_distance);
 
   if (match.pixel == 0)
@@ -1445,7 +1445,7 @@ generate_collage (char *input_name, char *output_name, float scale, int min_dist
       exit(1);
   }
 
-  paste_metapixel(match.pixel, out_image_data, in_image_width, in_image_height, x, y);
+  paste_moviepixel(match.pixel, out_image_data, in_image_width, in_image_height, x, y);
 
   if (min_distance > 0)
       pixel_add_collage_position(match.pixel, x, y);
@@ -1513,7 +1513,7 @@ read_tables (const char *library_dir)
 
             if (lisp_match_pattern(pattern, obj, vars, num_subs))
       {
-    metapixel_t *pixel = new_metapixel();
+    moviepixel_t *pixel = new_moviepixel();
     coefficient_with_index_t coeffs[NUM_COEFFS];
     lisp_object_t *lst;
     int channel, i;
@@ -1568,7 +1568,7 @@ read_tables (const char *library_dir)
     pixel->data = 0;
     pixel->collage_positions = 0;
 
-    add_metapixel(pixel);
+    add_moviepixel(pixel);
       }
       else
       {
@@ -1591,10 +1591,10 @@ read_tables (const char *library_dir)
     return 1;
 }
 
-static metapixel_t*
-find_metapixel (char *filename)
+static moviepixel_t*
+find_moviepixel (char *filename)
 {
-    metapixel_t *pixel;
+    moviepixel_t *pixel;
 
     for (pixel = first_pixel; pixel != 0; pixel = pixel->next)
   if (strcmp(pixel->filename, filename) == 0)
@@ -1619,7 +1619,7 @@ read_protocol (FILE *in)
     {
   lisp_object_t *vars[3];
 
-  if (lisp_match_string("(mosaic (size #?(integer) #?(integer)) (metapixels . #?(list)))",
+  if (lisp_match_string("(mosaic (size #?(integer) #?(integer)) (moviepixels . #?(list)))",
             obj, vars))
   {
       int i;
@@ -1636,7 +1636,7 @@ read_protocol (FILE *in)
 
       if (lisp_list_length(vars[2]) != num_pixels)
       {
-    fprintf(stderr, "mosaic should have %d metapixels, not %d\n", num_pixels, lisp_list_length(vars[2]));
+    fprintf(stderr, "mosaic should have %d moviepixels, not %d\n", num_pixels, lisp_list_length(vars[2]));
     exit(1);
       }
 
@@ -1652,11 +1652,11 @@ read_protocol (FILE *in)
         int y = lisp_integer(vars[1]);
         int width = lisp_integer(vars[2]);
         int height = lisp_integer(vars[3]);
-        metapixel_t *pixel;
+        moviepixel_t *pixel;
 
         if (width != 1 || height != 1)
         {
-      fprintf(stderr, "width and height in metapixel must both be 1\n");
+      fprintf(stderr, "width and height in moviepixel must both be 1\n");
       exit(1);
         }
 
@@ -1666,11 +1666,11 @@ read_protocol (FILE *in)
       exit(1);
         }
 
-        pixel = find_metapixel(lisp_string(vars[4]));
+        pixel = find_moviepixel(lisp_string(vars[4]));
 
         if (pixel == 0)
         {
-      fprintf(stderr, "could not find metapixel `%s'\n", lisp_string(vars[4]));
+      fprintf(stderr, "could not find moviepixel `%s'\n", lisp_string(vars[4]));
       exit(1);
         }
 
@@ -1678,7 +1678,7 @@ read_protocol (FILE *in)
     }
     else
     {
-        fprintf(stderr, "metapixel ");
+        fprintf(stderr, "moviepixel ");
         lisp_dump(lisp_car(lst), stderr);
         fprintf(stderr, " has wrong format\n");
         exit(1);
@@ -1884,7 +1884,7 @@ make_classic_mosaic (char *in_image_name, char *out_image_name,
 
   for (i = 0; i < mosaic->metawidth * mosaic->metaheight; ++i)
   {
-      metapixel_t *pixel = mosaic->matches[i].pixel;
+      moviepixel_t *pixel = mosaic->matches[i].pixel;
 
       if (pixel->data == 0)
       {
@@ -1907,7 +1907,7 @@ make_classic_mosaic (char *in_image_name, char *out_image_name,
   }
   else
   {
-      fprintf(protocol_out, "(mosaic (size %d %d)\n(metapixels\n", mosaic->metawidth, mosaic->metaheight);
+      fprintf(protocol_out, "(mosaic (size %d %d)\n(moviepixels\n", mosaic->metawidth, mosaic->metaheight);
       for (y = 0; y < mosaic->metaheight; ++y)
       {
         for (x = 0; x < mosaic->metawidth; ++x)
@@ -1952,7 +1952,7 @@ make_classic_mosaic (char *in_image_name, char *out_image_name,
     return 1;
 }
 
-#define RC_FILE_NAME      ".metapixelrc"
+#define RC_FILE_NAME      ".moviepixelrc"
 
 static void
 read_rc_file (void)
@@ -2076,15 +2076,15 @@ static void
 usage (void)
 {
     printf("Usage:\n"
-     "  metapixel --version\n"
+     "  moviepixel --version\n"
      "      print out version number\n"
-     "  metapixel --help\n"
+     "  moviepixel --help\n"
      "      print this help text\n"
-     "  metapixel [option ...] --prepare <inimage> <outimage> <tablefile>\n"
+     "  moviepixel [option ...] --prepare <inimage> <outimage> <tablefile>\n"
      "      calculate and output tables for <file>\n"
-     "  metapixel [option ...] --metapixel <in> <out>\n"
+     "  moviepixel [option ...] --moviepixel <in> <out>\n"
      "      transform <in> to <out>\n"
-     "  metapixel [option ...] --batch <batchfile>\n"
+     "  moviepixel [option ...] --batch <batchfile>\n"
      "      perform all the tasks in <batchfile>\n"
      "Options:\n"
      "  -l, --library=DIR            add the library in DIR\n"
@@ -2162,7 +2162,7 @@ main (int argc, char *argv[])
     { "version", no_argument, 0, OPT_VERSION },
     { "help", no_argument, 0, OPT_HELP },
     { "prepare", no_argument, 0, OPT_PREPARE },
-    { "metapixel", no_argument, 0, OPT_METAPIXEL },
+    { "moviepixel", no_argument, 0, OPT_METAPIXEL },
     { "batch", no_argument, 0, OPT_BATCH },
     { "out", required_argument, 0, OPT_OUT },
     { "in", required_argument, 0, OPT_IN },
@@ -2336,7 +2336,7 @@ main (int argc, char *argv[])
     break;
 
       case OPT_VERSION :
-    printf("metapixel " METAPIXEL_VERSION "\n"
+    printf("moviepixel " METAPIXEL_VERSION "\n"
            "\n"
            "Copyright (C) 1997-2006 Mark Probst\n"
            "\n"
@@ -2407,7 +2407,7 @@ main (int argc, char *argv[])
     {
   if (mode != MODE_METAPIXEL)
   {
-      fprintf(stderr, "the --in and --out options can only be used in metapixel mode\n");
+      fprintf(stderr, "the --in and --out options can only be used in moviepixel mode\n");
       return 1;
   }
   if (collage)
@@ -2432,7 +2432,7 @@ main (int argc, char *argv[])
       char *inimage_name, *outimage_name, *tables_name;
       FILE *tables_file;
       int in_width, in_height;
-      metapixel_t pixel;
+      moviepixel_t pixel;
       lisp_object_t *obj;
 
       if (argc - optind != 3)
@@ -2469,7 +2469,7 @@ main (int argc, char *argv[])
 
       write_image(outimage_name, prepare_width, prepare_height, scaled_data, 3, prepare_width * 3, IMAGE_FORMAT_PNG);
 
-      generate_metapixel_coefficients(&pixel, scaled_data, highest_coeffs);
+      generate_moviepixel_coefficients(&pixel, scaled_data, highest_coeffs);
 
       free(scaled_data);
 
@@ -2525,7 +2525,7 @@ main (int argc, char *argv[])
         static coefficient_with_index_t highest_coeffs[NUM_COEFFS];
 
         unsigned char *scaled_data;
-        metapixel_t *pixel = new_metapixel();
+        moviepixel_t *pixel = new_moviepixel();
         int left_x, width;
 
         compute_classic_column_coords(reader, x, &left_x, &width);
@@ -2533,7 +2533,7 @@ main (int argc, char *argv[])
                 left_x, 0, width, reader->num_lines, small_width, small_height);
         assert(scaled_data != 0);
 
-        generate_metapixel_coefficients(pixel, scaled_data, highest_coeffs);
+        generate_moviepixel_coefficients(pixel, scaled_data, highest_coeffs);
 
         pixel->data = scaled_data;
         pixel->width = small_width;
@@ -2545,7 +2545,7 @@ main (int argc, char *argv[])
         pixel->filename = (char*)malloc(64);
         sprintf(pixel->filename, "(%d,%d)", x, y);
 
-        add_metapixel(pixel);
+        add_moviepixel(pixel);
 
         printf(":");
         fflush(stdout);

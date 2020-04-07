@@ -3,7 +3,7 @@
 /*
  * imagesize.c
  *
- * metapixel
+ * moviepixel
  *
  * Copyright (C) 2003 Mark Probst
  *

@@ -3,7 +3,7 @@
 /*
  * vector.h
  *
- * metapixel
+ * moviepixel
  *
  * Copyright (C) 1997-1999 Mark Probst
  *

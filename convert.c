@@ -3,7 +3,7 @@
 /*
  * convert.c
  *
- * metapixel
+ * moviepixel
  *
  * Copyright (C) 2003-2004 Mark Probst
  *
@@ -30,7 +30,7 @@
 #include "getopt.h"
 #include "lispreader.h"
 
-#include "metapixel.h"
+#include "moviepixel.h"
 
 int
 main (int argc, char *argv[])

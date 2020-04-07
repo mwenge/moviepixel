@@ -24,23 +24,23 @@ CC = gcc
 export CCOPTS CC FORMATDEFS
 
 LISPREADER_OBJS = lispreader.o pools.o allocator.o
-OBJS = metapixel.o vector.o zoom.o $(LISPREADER_OBJS) getopt.o getopt1.o
+OBJS = moviepixel.o vector.o zoom.o $(LISPREADER_OBJS) getopt.o getopt1.o
 CONVERT_OBJS = convert.o $(LISPREADER_OBJS) getopt.o getopt1.o
 IMAGESIZE_OBJS = imagesize.o
 
-all : metapixel metapixel.1 convert metapixel-imagesize
+all : moviepixel moviepixel.1 convert moviepixel-imagesize
 
-metapixel : $(OBJS) librwimg
-	$(CC) $(LDOPTS) -o metapixel $(OBJS) rwimg/librwimg.a -lpng -ljpeg -lgif $(LIBFFM) -lm -lz
+moviepixel : $(OBJS) librwimg
+	$(CC) $(LDOPTS) -o moviepixel $(OBJS) rwimg/librwimg.a -lpng -ljpeg -lgif $(LIBFFM) -lm -lz
 
-metapixel.1 : metapixel.xml
-	xsltproc --nonet $(MANPAGE_XSL) metapixel.xml
+moviepixel.1 : moviepixel.xml
+	xsltproc --nonet $(MANPAGE_XSL) moviepixel.xml
 
 convert : $(CONVERT_OBJS)
 	$(CC) $(LDOPTS) -o convert $(CONVERT_OBJS)
 
-metapixel-imagesize : $(IMAGESIZE_OBJS) librwimg
-	$(CC) $(LDOPTS) -o metapixel-imagesize $(IMAGESIZE_OBJS) rwimg/librwimg.a -lpng -ljpeg -lgif -lm -lz
+moviepixel-imagesize : $(IMAGESIZE_OBJS) librwimg
+	$(CC) $(LDOPTS) -o moviepixel-imagesize $(IMAGESIZE_OBJS) rwimg/librwimg.a -lpng -ljpeg -lgif -lm -lz
 
 zoom : zoom.c librwimg
 	$(CC) -o zoom $(OPTIMIZE) $(PROFILE) $(MACOS_CCOPTS) -DTEST_ZOOM zoom.c $(MACOS_LDOPTS) rwimg/librwimg.a -lpng -ljpeg -lgif -lm -lz
@@ -51,28 +51,28 @@ zoom : zoom.c librwimg
 librwimg :
 	$(MAKE) -C rwimg
 
-install : metapixel metapixel.1
+install : moviepixel moviepixel.1
 	$(INSTALL) -d $(BINDIR)
-	$(INSTALL) metapixel $(BINDIR)
-	$(INSTALL) metapixel-prepare $(BINDIR)
-	$(INSTALL) metapixel.1 $(MANDIR)/man1
-	$(INSTALL) metapixel-imagesize $(BINDIR)
-	$(INSTALL) metapixel-sizesort $(BINDIR)
+	$(INSTALL) moviepixel $(BINDIR)
+	$(INSTALL) moviepixel-prepare $(BINDIR)
+	$(INSTALL) moviepixel.1 $(MANDIR)/man1
+	$(INSTALL) moviepixel-imagesize $(BINDIR)
+	$(INSTALL) moviepixel-sizesort $(BINDIR)
 
 clean :
-	rm -f *.o metapixel convert metapixel-imagesize *~
+	rm -f *.o moviepixel convert moviepixel-imagesize *~
 	$(MAKE) -C rwimg clean
 
 realclean : clean
-	rm -f metapixel.1
+	rm -f moviepixel.1
 
-dist : metapixel.1
-	rm -rf metapixel-$(VERSION)
-	mkdir metapixel-$(VERSION)
-	mkdir metapixel-$(VERSION)/rwimg
-	cp Makefile README NEWS COPYING *.[ch] metapixel-prepare metapixel-sizesort \
-		metapixel.xml metapixel.1 metapixelrc metapixel.spec \
-			metapixel-$(VERSION)/
-	cp rwimg/Makefile rwimg/*.[ch] metapixel-$(VERSION)/rwimg/
-	tar -zcvf metapixel-$(VERSION).tar.gz metapixel-$(VERSION)
-	rm -rf metapixel-$(VERSION)
+dist : moviepixel.1
+	rm -rf moviepixel-$(VERSION)
+	mkdir moviepixel-$(VERSION)
+	mkdir moviepixel-$(VERSION)/rwimg
+	cp Makefile README NEWS COPYING *.[ch] moviepixel-prepare moviepixel-sizesort \
+		moviepixel.xml moviepixel.1 moviepixelrc moviepixel.spec \
+			moviepixel-$(VERSION)/
+	cp rwimg/Makefile rwimg/*.[ch] moviepixel-$(VERSION)/rwimg/
+	tar -zcvf moviepixel-$(VERSION).tar.gz moviepixel-$(VERSION)
+	rm -rf moviepixel-$(VERSION)

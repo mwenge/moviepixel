@@ -1,7 +1,7 @@
 /*
- * metapixel.h
+ * moviepixel.h
  *
- * metapixel
+ * moviepixel
  *
  * Copyright (C) 1997-2004 Mark Probst
  *
@@ -74,7 +74,7 @@ typedef struct _position_t
     struct _position_t *next;
 } position_t;
 
-typedef struct _metapixel_t
+typedef struct _moviepixel_t
 {
     char *filename;
     int fileno; /* used in moviemode to avoid images in same vicinity */
@@ -86,12 +86,12 @@ typedef struct _metapixel_t
     int width, height;		/* only valid if data != 0 */
     int anti_x, anti_y;		/* only used if from an antimosaic */
     position_t *collage_positions; /* only used in collages */
-    struct _metapixel_t *next;
-} metapixel_t;
+    struct _moviepixel_t *next;
+} moviepixel_t;
 
 typedef struct
 {
-    metapixel_t *pixel;
+    moviepixel_t *pixel;
     int segued; /*only used in segue sequences*/
     float score;
 } match_t;
@@ -133,7 +133,7 @@ typedef union
 
 typedef struct
 {
-    metapixel_t *pixel;
+    moviepixel_t *pixel;
     float score;
     int x;
     int y;
@@ -145,6 +145,6 @@ typedef struct _string_list_t
     struct _string_list_t *next;
 } string_list_t;
 
-typedef float(*compare_func_t)(coeffs_t*, metapixel_t*, float);
+typedef float(*compare_func_t)(coeffs_t*, moviepixel_t*, float);
 
 #endif

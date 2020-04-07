@@ -3,7 +3,7 @@
 /*
  * zoom.h
  *
- * metapixel
+ * moviepixel
  *
  * Copyright (C) 2004 Mark Probst
  *
